@@ -1,9 +1,8 @@
-'use strict';
+import Meta from './Meta.mjs';
 
-const Meta  = require('./Meta.js');
-const { nullFn } = require('./Util.js');
+import { nullFn } from './Util.mjs';
 
-class Base {
+export default class Base {
     constructor (...args) {
         let me = this;
         let C = me.constructor;
@@ -128,5 +127,3 @@ Base.define({
         }
     }
 });
-
-module.exports = Base;

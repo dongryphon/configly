@@ -1,9 +1,6 @@
-'use strict';
-
-const Config = require('./Config.js');
-const Processor = require('./Processor.js');
-const Util = require('./Util.js');
-const Empty = Util.Empty;
+import Config from './Config.mjs';
+import Processor from './Processor.mjs';
+import { Empty, copyIf, decapitalize, nullFn, raise, setProto } from './Util.mjs';
 
 let getOwnNames = Object.getOwnPropertyNames;
 let getOwnSymbols = Object.getOwnPropertySymbols;
@@ -57,7 +54,7 @@ function getOwnProps (object) {
     return ret;
 }
 
-class Meta {
+export default class Meta {
     constructor (cls, superclass = null) {
         let me = this;
         let proto = cls.prototype;
@@ -111,7 +108,7 @@ class Meta {
         let cls = this.class;
 
         this.completed = true;
-        this.complete = Util.nullFn;
+        this.complete = nullFn;
 
         (this.classes = this.bases.clone()).add(cls);
 
@@ -172,13 +169,13 @@ class Meta {
             mixMeta, prop, skip, target;
 
         if (cls.constructor.isPrototypeOf(mixinCls)) {
-            Util.raise('Cannot mix a derived class into a super class');
+            raise('Cannot mix a derived class into a super class');
         }
         if (!rootClass.isPrototypeOf(mixinCls)) {
-            Util.raise(`Mixins must extend base class ${rootClass.name}`);
+            raise(`Mixins must extend base class ${rootClass.name}`);
         }
         if (me.completed) {
-            Util.raise(`Too late apply a mixin into this class`);
+            raise(`Too late apply a mixin into this class`);
         }
 
         mixinMeta.complete();
@@ -332,7 +329,7 @@ class Meta {
 
     getMembers () {
         if (!this.completed) {
-            Util.raise('Class is incomplete');
+            raise('Class is incomplete');
         }
 
         let cls = this.class;
@@ -351,7 +348,7 @@ class Meta {
 
         if (mixinId == null) {
             mixinId = this.class.name;
-            mixinId = mixinId ? Util.decapitalize(mixinId) : '';
+            mixinId = mixinId ? decapitalize(mixinId) : '';
 
             this.mixinId = mixinId;
         }
@@ -420,7 +417,7 @@ class Meta {
                 cls[applier](options[key]);
             }
             else {
-                Util.raise(`Invalid class option: ${key}`);
+                raise(`Invalid class option: ${key}`);
             }
         }
     }
@@ -438,7 +435,7 @@ class Meta {
 
         cls.prototype.mixins = new Empty();
 
-        Util.copyIf(cls, {
+        copyIf(cls, {
             applyChains (chains) {
                 this.getMeta().addChains(chains);
             },
@@ -525,18 +522,12 @@ class Meta {
 
         class Shim extends base {}
 
-        Util.setProto(cls, Shim);
-        Util.setProto(cls.prototype, Shim.prototype);
+        setProto(cls, Shim);
+        setProto(cls.prototype, Shim.prototype);
 
         return Shim;
     }
 }
-
-Meta.count = 0;
-
-Meta.symbols = {
-    junction: JunctionSym
-};
 
 Object.assign(Meta.prototype, {
     chains: null,
@@ -549,4 +540,7 @@ Object.assign(Meta.prototype, {
     members: null
 });
 
-module.exports = Meta;
+Meta.count = 0;
+Meta.symbols = {
+    junction: JunctionSym
+};

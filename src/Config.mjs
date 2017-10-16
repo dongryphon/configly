@@ -1,14 +1,13 @@
-'use strict';
+import { Empty, capitalize, prototype, statics } from './Util.mjs';
 
-const { Empty, capitalize, prototype, statics } = require('./Util.js');
-
-@statics({
-    all: new Empty(),
-    metaSymbol: Symbol('configMeta')
-})
+export default
 @prototype({
     cached: false,
     lazy: false
+})
+@statics({
+    all: new Empty(),
+    metaSymbol: Symbol('configMeta')
 })
 class Config {
     constructor (name) {
@@ -156,5 +155,3 @@ class Config {
         return fn;
     }
 }
-
-module.exports = Config;

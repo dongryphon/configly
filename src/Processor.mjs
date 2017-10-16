@@ -1,6 +1,6 @@
 'use strict';
 
-const Util = require('./Util.js');
+import { Empty, capitalize, raise, toArray } from './Util.mjs';
 
 /**
  * Processors are helper objects that capture the options of the `processors` mechanism
@@ -33,7 +33,7 @@ const Util = require('./Util.js');
  *          }
  *      }
  */
-class Processor {
+export default class Processor {
     constructor (name, options) {
         this.applier = Processor.getApplierName(name);
         this.name = name;
@@ -48,8 +48,8 @@ class Processor {
                 after = options;
             }
             else {
-                after = Util.toArray(options.after) || null;
-                this.before = Util.toArray(options.before) || null;
+                after = toArray(options.after) || null;
+                this.before = toArray(options.before) || null;
             }
 
             this.after = after;
@@ -79,7 +79,7 @@ class Processor {
         path.push(name);
 
         if (this.sorting) {
-            Util.raise(`Circular processor dependencies: ${path.join(" --> ")}`);
+            raise(`Circular processor dependencies: ${path.join(" --> ")}`);
         }
 
         this.sorting = true;
@@ -100,7 +100,7 @@ class Processor {
     }
 
     static decode (processors, inherited) {
-        let map = new Util.Empty();
+        let map = new Empty();
 
         if (typeof processors === 'string') {
             processors = [processors];
@@ -135,7 +135,7 @@ class Processor {
         let ret = nameMap[name];
 
         if (!ret) {
-            let cap = Util.capitalize(name);
+            let cap = capitalize(name);
 
             nameMap[name] = ret = 'apply' + cap;
         }
@@ -147,7 +147,7 @@ class Processor {
         let processors = Object.values(procMap);
         let ret = [];
         let state = {
-            afters: new Util.Empty(),
+            afters: new Empty(),
             map: procMap,
             path: [],
             sorted: ret
@@ -159,7 +159,7 @@ class Processor {
             if (before) {
                 for (let b of before) {
                     if (!procMap[b]) {
-                        Util.raise(`No processor matches "before"="${b}" on ${proc.name}`);
+                        raise(`No processor matches "before"="${b}" on ${proc.name}`);
                     }
 
                     let afters = state.afters;
@@ -197,6 +197,4 @@ Object.assign(Processor.prototype, {
     sorted: false
 });
 
-Processor.nameMap = new Util.Empty();
-
-module.exports = Processor;
+Processor.nameMap = new Empty();

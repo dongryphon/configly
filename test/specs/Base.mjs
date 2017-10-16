@@ -1,5 +1,6 @@
+import { Base } from '../../index.mjs';
+
 const expect = require('assertly').expect;
-const Base = require('../../src/Base.js');
 
 const { define, lazy, merge, junction, mixinId } = require('../../src/decorators.js');
 
